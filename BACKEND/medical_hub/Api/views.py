@@ -6,7 +6,7 @@ from django.contrib.auth.hashers import make_password,check_password
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
-from .models import UserProfile
+from .models import UserProfile,ContactMessage
 from datetime import datetime
 import logging
 import json
@@ -84,6 +84,28 @@ def get_id(request):
 
     return HttpResponse(status=405)  # Method not allowed
 
+
+# @csrf_exempt
+def contact_message_create(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            name = data.get('name')
+            email = data.get('email')
+            message = data.get('message')
+
+            if not name or not email or not message:
+                return JsonResponse({'error': 'All fields are required.'}, status=400)
+
+            contact_message = ContactMessage(name=name, email=email, message=message)
+            contact_message.save()
+
+            return JsonResponse({'message': 'Your message has been sent successfully!'}, status=201)
+
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON format.'}, status=400)
+
+    return JsonResponse({'error': 'Invalid request method.'}, status=405)
 
 User = UserProfile.objects.all()
 print(User , "Userrrrrrrrrrrrr")
