@@ -59,10 +59,14 @@
 
 
 from django.contrib import admin
-from .models import UserProfile
+from .models import UserProfile,ContactMessage
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('name', 'password' , 'email', 'contact', 'dob', 'aadhar_no', 'gender', 'blood_group', 'address', 'city', 'state', 'pincode', 'health_id', 'start_date', 'exp_date')
     search_fields = ('name', 'email', 'aadhar_no')
     readonly_fields = ('health_id', 'start_date', 'exp_date')
+
+@admin.register(ContactMessage)
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display = ('name','email','message')

@@ -69,60 +69,69 @@
 // }
 
 //             export default Login;
+
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
 
 const Login = () => {
-  const [username, setUsername] = useState("");
+  const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [csrfToken, setCsrfToken] = useState("");
+  const [loading, setLoading] = useState(false); // Loading state
+  const navigate = useNavigate(); // Hook for redirection
 
-//   useEffect(() => {
-//     // Fetch the CSRF token from the Django backend
-//     const fetchCsrfToken = async () => {
-//         try {
-//           const response = await fetch('http://127.0.0.1:8000/api/csrf_token/', {
-//             method: 'GET',
-//             credentials: 'include', // This ensures cookies are sent with the request
-//           });
-//           const data = await response.json();
-//           setCsrfToken(data.csrfToken);
-//         } catch (error) {
-//           console.error("Error fetching CSRF token:", error);
-//         }
-//       };
+  useEffect(() => {
+    const fetchCsrfToken = async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/csrf_token/', {
+          method: 'GET',
+          credentials: 'include',
+        });
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        setCsrfToken(data.csrfToken);  // Adjust based on your actual response structure
+      } catch (error) {
+        console.error('Error fetching CSRF token:', error);
+        setError("Unable to fetch CSRF token. Please try again.");
+      }
+    };
 
-//     fetchCsrfToken();
-//   }, []);
+    fetchCsrfToken();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setLoading(true); // Set loading state to true
     const loginData = {
-      username: username,
-      password: password,
+      userId,
+      password,
     };
-
+    console.log("Login data being sent:", loginData);
     try {
       const response = await fetch('http://127.0.0.1:8000/api/login/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-        //   'X-CSRFToken': csrfToken,
+          'X-CSRFToken': csrfToken, // Add the CSRF token here
         },
         body: JSON.stringify(loginData),
+        credentials: 'include', // Ensure this is included
       });
-      console.log(response,"responserespons1eresponse")
 
       if (response.ok) {
         const data = await response.json();
         console.log("Login successful:", data);
-        // Handle successful login (e.g., redirect or store token)
+        // Redirect to another page on successful login
+        navigate("/dashboard"); // Change this to your desired route
       } else {
-        setError("Invalid username or password");
+        const errorData = await response.json();
+        setError(errorData.detail || "Invalid userId or password");
       }
     } catch (error) {
       setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false); // Set loading state to false
     }
   };
 
@@ -131,11 +140,11 @@ const Login = () => {
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
         <div>
-          <label>Username:</label>
+          <label>UserId:</label>
           <input
             type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={userId}
+            onChange={(e) => setUserId(e.target.value)}
             required
           />
         </div>
@@ -149,7 +158,9 @@ const Login = () => {
           />
         </div>
         {error && <p style={{ color: "red" }}>{error}</p>}
-        <button type="submit">Login</button>
+        <button type="submit" disabled={loading}> {/* Disable button when loading */}
+          {loading ? "Logging in..." : "Login"}
+        </button>
       </form>
     </div>
   );

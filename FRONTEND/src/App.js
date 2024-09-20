@@ -28,15 +28,15 @@ function getCookie(name) {
   return cookieValue;
 }
 function App() {
-  useEffect(() => {
-    // Fetch CSRF token and store it for later use
-    fetch('/api/csrf/')
-      .then(response => response.json())
-      .then(data => {
-        document.cookie = `csrftoken=${data.csrfToken}; path=/`;
-      })
-      .catch(error => console.error('Error fetching CSRF token:', error));
-  }, []);
+  // useEffect(() => {
+  //   // Fetch CSRF token and store it for later use
+  //   fetch('/api/csrf/')
+  //     .then(response => response.json())
+  //     .then(data => {
+  //       document.cookie = `csrftoken=${data.csrfToken}; path=/`;
+  //     })
+  //     .catch(error => console.error('Error fetching CSRF token:', error));
+  // }, []);
   return (
     <Router>
     <Navbar />

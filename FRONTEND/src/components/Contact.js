@@ -19,7 +19,7 @@ function Contact() {
     return emailRegex.test(email);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit =async (e) => {
     e.preventDefault();
     setError('');
 
@@ -27,7 +27,36 @@ function Contact() {
       setError('Please enter a valid email address.');
       return;
     }
+    const combinedData = new FormData();
+    for (const key in formData) {
+      combinedData.append(key, formData[key]);
+    }
+    for (const pair of combinedData.entries()) {
+      console.log(`${pair[0]}: ${pair[1] instanceof File ? pair[1].name : pair[1]}`);
+    }
+    console.log("Sending data:", combinedData);  // Log the data to check if it's correct
 
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/contact/', {
+        method: 'POST',
+        // headers: {
+        //   'Content-Type': 'application/json',
+        //   'X-CSRFToken': csrfToken,  // Add the CSRF token here
+        // },
+        body: combinedData,
+      });
+      const data = await response.json();
+      if (response.ok) {
+        alert("Doneeeeeeeeeee");  // Profile submitted successfully
+      } else {
+        const errorMessage = typeof data.error === 'string' ? data.error : JSON.stringify(data.error);
+        alert(`Error: ${errorMessage}`);   // Display the error message returned from the server
+      }
+
+    } catch (error) {
+      console.error('Error:', error);
+      alert("An error occurred. Please try again.");
+    }
     // Handle form submission logic here
     // For example, send formData to your server
     console.log('Form submitted', formData);

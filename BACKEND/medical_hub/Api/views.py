@@ -1,7 +1,7 @@
 from django.http import JsonResponse, HttpResponse
 from django.contrib.auth import authenticate, login, get_user_model
-# from django.views.decorators.csrf import csrf_exempt
-# from django.middleware.csrf import get_token
+from django.views.decorators.csrf import csrf_exempt
+from django.middleware.csrf import get_token
 from django.contrib.auth.hashers import make_password,check_password
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
@@ -13,12 +13,12 @@ import json
 
 logger = logging.getLogger(__name__)
 
-# def get_csrf_token(request):
-#     csrf_token = get_token(request)  # Generate CSRF token
-#     print(csrf_token , "csrf_tokencsrf_tokencsrf_tokencsrf_token")
-#     return JsonResponse({'csrfToken': csrf_token})  # Return it as JSON
+def get_csrf_token(request):
+    csrf_token = get_token(request)  # Generate CSRF token
+    print(csrf_token , "csrf_tokencsrf_tokencsrf_tokencsrf_token")
+    return JsonResponse({'csrfToken': csrf_token})  # Return it as JSON
 
-# @csrf_exempt
+@csrf_exempt
 def get_id(request):
     if request.method == 'POST':
         try:
@@ -85,14 +85,18 @@ def get_id(request):
     return HttpResponse(status=405)  # Method not allowed
 
 
-# @csrf_exempt
+@csrf_exempt
 def contact_message_create(request):
     if request.method == 'POST':
         try:
-            data = json.loads(request.body)
-            name = data.get('name')
-            email = data.get('email')
-            message = data.get('message')
+            logger.info("Received data: %s", request.POST)
+            name = request.POST.get('name')
+            email = request.POST.get('email')
+            message = request.POST.get('message')
+            # data = json.loads(request.body)
+            # name = data.get('name')
+            # email = data.get('email')
+            # message = data.get('message')
 
             if not name or not email or not message:
                 return JsonResponse({'error': 'All fields are required.'}, status=400)
@@ -142,32 +146,28 @@ print(User , "Userrrrrrrrrrrrr")
 #     return JsonResponse({"error": "Method not allowed"}, status=405)
 
 
+@csrf_exempt
 def login_view(request):
-    print(request.method, "methoddddddd")
-
     if request.method == "POST":
         data = json.loads(request.body)
-        print(data, "Dataaaaa")
 
-        username = data.get('username')
+        userId = data.get('userId')
         password = data.get('password')
-        print(username, password, "usernameeeeee")
-
+        print(f"User ID: {userId}, Password: {password}")
         try:
-            # Get the user from the UserProfile model using username
-            user = UserProfile.objects.get(username=username)
-            print(user, "userrrrrr")
-            print(user.password, "password")
+            # Get the user from the UserProfile model using email
+            user = UserProfile.objects.get(email=userId)
 
             # Check the password
+            print(f"Received password: {password}")
+            print(f"Stored hashed password: {user.password}")
+
             if check_password(password, user.password):
                 return JsonResponse({"message": "Login successful", "user_id": user.id}, status=200)
             else:
-                print("Invalid password")
                 return JsonResponse({"error": "Invalid password"}, status=400)
 
         except UserProfile.DoesNotExist:
-            print("User does not exist")
             return JsonResponse({"error": "User does not exist"}, status=400)
 
     return JsonResponse({"error": "Method not allowed"}, status=405)
