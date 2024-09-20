@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
+
 
 function UserForm({ userData }) {
   
@@ -19,6 +21,7 @@ function UserForm({ userData }) {
     email: userData.email,
     password: userData.password,
   });
+  const navigate = useNavigate(); // Hook for redirection
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -53,7 +56,8 @@ function UserForm({ userData }) {
       });
       const data = await response.json();
       if (response.ok) {
-        alert(data.message);  // Profile submitted successfully
+        alert(data.message);
+        navigate("/login");  // Profile submitted successfully
       } else {
         const errorMessage = typeof data.error === 'string' ? data.error : JSON.stringify(data.error);
         alert(`Error: ${errorMessage}`);   // Display the error message returned from the server

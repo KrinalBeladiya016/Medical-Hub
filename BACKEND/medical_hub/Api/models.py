@@ -90,8 +90,8 @@ class UserProfile(models.Model):
         if not self.exp_date:
             self.exp_date = self.start_date + timedelta(days=3*365)
         
-        if not self.pk or not self.__class__.objects.filter(pk=self.pk).exists() or self.__class__.objects.get(pk=self.pk).password != self.password:
-            self.password = make_password(self.password)
+        # if not self.pk or not self.__class__.objects.filter(pk=self.pk).exists() or self.__class__.objects.get(pk=self.pk).password != self.password:
+        #     self.password = make_password(self.password)
 
         try:
             super(UserProfile, self).save(*args, **kwargs)

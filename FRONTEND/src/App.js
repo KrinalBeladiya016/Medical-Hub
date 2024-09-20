@@ -9,6 +9,7 @@ import Home from './components/Home';
 import About from './components/About';
 import GetID from './components/GetID';
 import Login from './components/Login';
+import UserProfile from './components/User/UserProfile';
 import axios from 'axios';
 
 axios.defaults.headers.common['X-CSRFToken'] = getCookie('csrftoken');
@@ -46,7 +47,8 @@ function App() {
       <Route path="/contact" element={<Contact />} />
       <Route path="/getid" element={<GetID />} />
       <Route path="/login" element={<Login />} />
-    </Routes>
+      <Route path="/userProfile" element={<UserProfile />} />
+      </Routes>
     <Footer />
   </Router>
   );

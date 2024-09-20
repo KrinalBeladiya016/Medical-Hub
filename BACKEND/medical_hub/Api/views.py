@@ -1,15 +1,21 @@
 from django.http import JsonResponse, HttpResponse
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, get_user_model
 from django.views.decorators.csrf import csrf_exempt
 from django.middleware.csrf import get_token
-from django.contrib.auth.hashers import make_password,check_password
+from django.contrib.auth.hashers import make_password, check_password
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from .models import UserProfile,ContactMessage
 from datetime import datetime
+from django.views import View
 import logging
 import json
+from django.contrib.auth.mixins import LoginRequiredMixin
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
 logger = logging.getLogger(__name__)
 
@@ -111,41 +117,6 @@ def contact_message_create(request):
 
     return JsonResponse({'error': 'Invalid request method.'}, status=405)
 
-User = UserProfile.objects.all()
-print(User , "Userrrrrrrrrrrrr")
-# @csrf_exempt  # Only necessary if you are skipping CSRF protection
-# def login_view(request):
-#     print(request.method , "methoddddddd")
-#     if request.method == "POST":
-#         data = json.loads(request.body)
-#         print(data , "Dataaaaa")
-
-#         username = data.get('username')
-#         password = data.get('password')
-#         print(username  , password , "usernameeeeee")
-
-        
-
-#         try:
-#             print("hiiiiiiiiiiiiiiiii")
-#             # Get the user from the database
-#             user = User.get(username=username)
-#             print(user , "userrrrrr")
-#             print(user.password , "password")
-
-#             # Check the password
-#             if check_password(password, user.password):
-#                 return JsonResponse({"message": "Login successful", "user_id": user.id}, status=200)
-#             else:
-#                 return JsonResponse({"error": "Invalid password"}, status=400)
-
-#         except User.DoesNotExist:
-#             print("not existsssss")
-#             return JsonResponse({"error": "User does not exist"}, status=400)
-
-#     return JsonResponse({"error": "Method not allowed"}, status=405)
-
-
 @csrf_exempt
 def login_view(request):
     if request.method == "POST":
@@ -163,11 +134,69 @@ def login_view(request):
             print(f"Stored hashed password: {user.password}")
 
             if check_password(password, user.password):
-                return JsonResponse({"message": "Login successful", "user_id": user.id}, status=200)
+                print("Password Matched")
+                return JsonResponse({"message": "Login successful", "user_id": user.email}, status=200)
             else:
+                print("Password Not Matched")
                 return JsonResponse({"error": "Invalid password"}, status=400)
 
         except UserProfile.DoesNotExist:
+            print("User does not exist")
             return JsonResponse({"error": "User does not exist"}, status=400)
-
+    print('method Problem')
     return JsonResponse({"error": "Method not allowed"}, status=405)
+
+@login_required
+def get_profile(request):
+    # If user is authenticated, return profile data
+    user = request.user
+    profile = UserProfile.objects.filter(user=user).first()  # Assuming you have a UserProfile model
+    if profile:
+        return JsonResponse({
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            # Add more fields as necessary
+        })
+    return JsonResponse({"error": "Profile not found"}, status=404)@api_view(['GET'])
+
+@login_required  # Ensure the user is authenticated
+def get_profile(request):
+    # Check if user is authenticated
+    print("Hiiiiiiiiiiiiiiii")
+    if not request.user.is_authenticated:
+        print("Here")
+        return JsonResponse({'error': 'User is not authenticated'}, status=401)
+
+    # Now we know the user is authenticated, fetch their profile
+    user = request.user
+
+    # Assuming you have a UserProfile model to store user profiles
+    try:
+        profile = UserProfile.objects.get(user=user)
+        print(profile)
+        profile_data = {
+            "email": user.email,
+            "name": user.name,
+            # Add more fields as necessary
+        }
+        print(profile_data)
+        return JsonResponse(profile_data)
+    except UserProfile.DoesNotExist:
+        print("Okiee")
+        return JsonResponse({"error": "Profile not found"}, status=404)
+
+
+class UserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        profile = UserProfile.objects.get(user=user)
+        profile_data = {
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            # Add other fields as needed
+        }
+        return Response(profile_data)

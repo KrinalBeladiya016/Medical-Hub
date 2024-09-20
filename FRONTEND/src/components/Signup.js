@@ -85,7 +85,7 @@ function Signup({ onSignupComplete }) {
               {error && <p className="text-red-500 mb-4">{error}</p>}
               <button
                 type="submit"
-                className="px-6 py-2 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-lg shadow-lg transition duration-300"
+              className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl flex items-center gap-2 transition duration-300"
               >
                 Sign Up
               </button>
