@@ -12,6 +12,7 @@ import Login from './components/Login';
 import UserProfile from './components/User/UserProfile';
 import axios from 'axios';
 
+
 axios.defaults.headers.common['X-CSRFToken'] = getCookie('csrftoken');
 
 function getCookie(name) {

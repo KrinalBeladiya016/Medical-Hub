@@ -2,9 +2,11 @@ from django.db import models,IntegrityError
 from datetime import datetime,timedelta
 from django.core.exceptions import ValidationError
 from django.contrib.auth.hashers import make_password, check_password
+from django.contrib.auth.models import User
 
 # Create your models here.
 class UserProfile(models.Model):
+    # user = models.OneToOneField(User, on_delete=models.CASCADE)  # This is where on_delete is applied
     health_id = models.CharField(max_length=12, unique=True, editable=False, primary_key=True)
     name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
@@ -39,6 +41,7 @@ class UserProfile(models.Model):
 
         if errors:
             raise ValidationError(errors)
+
 
     # def save(self, *args, **kwargs):
     #     self.clean()  # Call clean method to validate data

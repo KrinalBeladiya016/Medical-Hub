@@ -1,72 +1,69 @@
-import React, { useState, useEffect } from 'react';
-
-// Function to retrieve CSRF token from cookies
-const getCsrfToken = () => {
-    const name = 'csrftoken';
-    const cookieValue = `; ${document.cookie}`;
-    const parts = cookieValue.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-};
+import React, { useEffect, useState } from "react";
 
 const UserProfile = () => {
-    const [profileData, setProfileData] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [email, setEmail] = useState(localStorage.getItem('email'));
-    const [password, setPassword] = useState(localStorage.getItem('password'));
+  const [userProfile, setUserProfile] = useState(null);
+  const [error, setError] = useState("");
 
-    const fetchProfileData = async () => {
-        const token = localStorage.getItem('authToken'); // Assuming you're storing token in localStorage
+  // Function to fetch user profile
+  const fetchUserProfile = async () => {
+    try {
+        const response = await fetch('http://127.0.0.1:8000/api/userProfile/', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'), // Function to get the CSRF token from cookies
+                'Authorization': `Token ${localStorage.getItem('token')}` // Assuming you're using token authentication
+            },
+            credentials: 'include' // Include cookies in the request
+        });
         
-        try {
-            const response = await fetch('http://127.0.0.1:8000/api/userProfile/', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`, // Send token in Authorization header
-                },
-            });
-    
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('User Profile Data:', data);
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+    }
+};
+
+const getCookie = (name) => {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Check if this cookie string begins with the name we want
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
             }
-    
-            const data = await response.json();
-            console.log("Profile data: ", data);
-    
-        } catch (error) {
-            console.error("Fetch error: ", error);
         }
-    };
-    
-    
-    
+    }
+    return cookieValue;
+};
 
-    useEffect(() => {
-        const storedEmail = localStorage.getItem('email');
-        const storedPassword = localStorage.getItem('password');
-        if (storedEmail && storedPassword) {
-            setEmail(storedEmail);
-            setPassword(storedPassword);
-            fetchProfileData();
-        } else {
-            console.error("No login credentials found");
-        }
-    }, []);
 
-    return (
-        <div>
-            {isLoading ? (
-                <p>Loading...</p>
-            ) : error ? (
-                <p>Error: {error}</p>
-            ) : (
-                <div>
-                    {/* Render profile data here */}
-                    {profileData && <div>{JSON.stringify(profileData)}</div>}
-                </div>
-            )}
-        </div>
-    );
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
+  if (error) {
+    return <div className="text-red-500">{error}</div>;
+  }
+
+  if (!userProfile) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div>
+      <h1 className="text-2xl font-bold">User Profile</h1>
+      <p>Email: {userProfile.email}</p>
+      {/* Add other profile fields as necessary */}
+    </div>
+  );
 };
 
 export default UserProfile;

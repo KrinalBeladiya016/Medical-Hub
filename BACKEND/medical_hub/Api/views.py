@@ -1,5 +1,6 @@
 from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
+from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth import authenticate, login, get_user_model
 from django.views.decorators.csrf import csrf_exempt
 from django.middleware.csrf import get_token
@@ -12,7 +13,8 @@ from datetime import datetime
 from django.views import View
 import logging
 import json
-from django.contrib.auth.mixins import LoginRequiredMixin
+
+
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -121,82 +123,72 @@ def contact_message_create(request):
 def login_view(request):
     if request.method == "POST":
         data = json.loads(request.body)
-
         userId = data.get('userId')
         password = data.get('password')
-        print(f"User ID: {userId}, Password: {password}")
+
         try:
-            # Get the user from the UserProfile model using email
             user = UserProfile.objects.get(email=userId)
-
-            # Check the password
-            print(f"Received password: {password}")
-            print(f"Stored hashed password: {user.password}")
-
             if check_password(password, user.password):
-                print("Password Matched")
                 return JsonResponse({"message": "Login successful", "user_id": user.email}, status=200)
             else:
-                print("Password Not Matched")
                 return JsonResponse({"error": "Invalid password"}, status=400)
-
         except UserProfile.DoesNotExist:
-            print("User does not exist")
             return JsonResponse({"error": "User does not exist"}, status=400)
-    print('method Problem')
+
     return JsonResponse({"error": "Method not allowed"}, status=405)
+
+
+@login_required
+def check_login_status(request):
+    logger.info(f"User authenticated: {request.user.is_authenticated}")
+    return JsonResponse({"status": "logged in", "user_id": request.user.id})
+
 
 @login_required
 def get_profile(request):
-    # If user is authenticated, return profile data
-    user = request.user
-    profile = UserProfile.objects.filter(user=user).first()  # Assuming you have a UserProfile model
-    if profile:
-        return JsonResponse({
-            "email": user.email,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            # Add more fields as necessary
-        })
-    return JsonResponse({"error": "Profile not found"}, status=404)@api_view(['GET'])
-
-@login_required  # Ensure the user is authenticated
-def get_profile(request):
-    # Check if user is authenticated
-    print("Hiiiiiiiiiiiiiiii")
-    if not request.user.is_authenticated:
-        print("Here")
-        return JsonResponse({'error': 'User is not authenticated'}, status=401)
-
-    # Now we know the user is authenticated, fetch their profile
     user = request.user
 
-    # Assuming you have a UserProfile model to store user profiles
     try:
         profile = UserProfile.objects.get(user=user)
-        print(profile)
         profile_data = {
             "email": user.email,
-            "name": user.name,
-            # Add more fields as necessary
+            "first_name": profile.first_name,
+            "last_name": profile.last_name,
+            # Add more fields as needed
         }
-        print(profile_data)
         return JsonResponse(profile_data)
     except UserProfile.DoesNotExist:
-        print("Okiee")
         return JsonResponse({"error": "Profile not found"}, status=404)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_profile(request):
+    user_profile = request.user.userprofile  # Assuming a OneToOne relationship with UserProfile
+    return Response({
+        'name': user_profile.name,
+        'email': user_profile.email,
+        # Add other fields as needed
+    })
 
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = request.user
-        profile = UserProfile.objects.get(user=user)
-        profile_data = {
-            "email": user.email,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            # Add other fields as needed
-        }
-        return Response(profile_data)
+        print("User:", request.user)  # Log the user
+        print("Is authenticated:", request.user.is_authenticated)  # Log authentication status
+        
+        if request.user.is_authenticated:
+            # Return user profile data
+            return Response({"message": "User is authenticated", "user_id": request.user.email})
+        else:
+            return Response({"error": "User is not authenticated"}, status=403)
+        
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_profile(request):
+    print(request.COOKIES)  # Log cookies to see what is being sent
+    user_profile = UserProfile.objects.get(user=request.user)
+    data = {
+        'email': user_profile.email,
+    }
+    return Response(data)

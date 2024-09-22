@@ -9,9 +9,9 @@ urlpatterns = [
     path('csrf_token/', views.get_csrf_token, name='csrf_token'),
     path('login/', views.login_view, name='login'),
     path('contact/', views.contact_message_create, name='contact_message_create'),
-    # path('accounts/login/', auth_views.LoginView.as_view(), name='login'),
-    path('api/userProfile/', views.UserProfileView.as_view(), name='user-profile'),
-    path('userProfile/', views.get_profile, name='userProfile'),
+    path('userProfile/', views.UserProfileView.as_view(), name='user-profile'),
+    # path('userprofile/',views.UserProfileView,name='UserProfileView'),
+    path('check_login_status/', views.check_login_status, name='check_login_status'),
 ]
 
 

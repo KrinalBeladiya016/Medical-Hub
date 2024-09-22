@@ -121,7 +121,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',  # Allow React's frontend
+    'http://localhost:3000',
+    'http://127.0.0.1:8000' ,  # Allow React's frontend
 ]
 # settings.py
 CORS_ALLOW_CREDENTIALS = True
@@ -146,3 +147,9 @@ REST_FRAMEWORK = {
 # Prevent Django from redirecting to login page on unauthorized access
 # LOGIN_URL = None
 LOGIN_URL = '/api/login/'  # Update to your login URL
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',  # Default backend for Django
+)
+SESSION_COOKIE_SAMESITE = None  # This allows cross-site cookies
+CSRF_COOKIE_SAMESITE = None
