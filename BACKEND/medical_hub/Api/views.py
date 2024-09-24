@@ -8,11 +8,17 @@ from django.contrib.auth.hashers import make_password, check_password
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
-from .models import UserProfile,ContactMessage
+from .models import UserProfile,ContactMessage,Hospital,PatientVisit
 from datetime import datetime
 from django.views import View
 import logging
 import json
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework import permissions
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import AccessToken
+
+
 
 
 from rest_framework.permissions import IsAuthenticated
@@ -121,74 +127,157 @@ def contact_message_create(request):
 
 @csrf_exempt
 def login_view(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
-        userId = data.get('userId')
-        password = data.get('password')
-
+    print("Method :",request.method)
+    if request.method == "POST":  # Handle only POST requests
         try:
+            data = json.loads(request.body)
+            userId = data.get('userId')
+            password = data.get('password')
+
+            # Look up the user by email
             user = UserProfile.objects.get(email=userId)
+
+            # Check if the password is correct
+            # print("Userrrrrrr",user)
             if check_password(password, user.password):
+                # try:
+                #     access_token = AccessToken.for_user(user)  # Attempt to generate the token
+
+                #     access_token['health_id'] = user.health_id  # Add custom field
+                #     return JsonResponse({'access': str(access_token)}, status=200)
+                # except Exception as e:
+                #     print(f"Error generating access token: {e}")  # Print the error message
+                #     return JsonResponse({'error': 'Token generation failed'}, status=500)
+                print(user)
+                # refresh = RefreshToken.for_user(user)
                 return JsonResponse({"message": "Login successful", "user_id": user.email}, status=200)
             else:
                 return JsonResponse({"error": "Invalid password"}, status=400)
+
         except UserProfile.DoesNotExist:
             return JsonResponse({"error": "User does not exist"}, status=400)
-
-    return JsonResponse({"error": "Method not allowed"}, status=405)
-
-
-@login_required
-def check_login_status(request):
-    logger.info(f"User authenticated: {request.user.is_authenticated}")
-    return JsonResponse({"status": "logged in", "user_id": request.user.id})
-
-
-@login_required
-def get_profile(request):
-    user = request.user
-
-    try:
-        profile = UserProfile.objects.get(user=user)
-        profile_data = {
-            "email": user.email,
-            "first_name": profile.first_name,
-            "last_name": profile.last_name,
-            # Add more fields as needed
-        }
-        return JsonResponse(profile_data)
-    except UserProfile.DoesNotExist:
-        return JsonResponse({"error": "Profile not found"}, status=404)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid request body"}, status=400)
+    # print("Method :",request.method)
+    request.method="POST"
+    return JsonResponse({"error": "Method not allowed"}, status=405) 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_user_profile(request):
-    user_profile = request.user.userprofile  # Assuming a OneToOne relationship with UserProfile
-    return Response({
-        'name': user_profile.name,
-        'email': user_profile.email,
-        # Add other fields as needed
-    })
+def get_user_profile(APIView):
+    def get(self, request, email):
+        try:
+            user = UserProfile.objects.get(email=email)
+            return Response({"name": user.name, "email": user.email})  # Adjust as needed
+        except UserProfile.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-class UserProfileView(APIView):
-    permission_classes = [IsAuthenticated]
+@csrf_exempt
+def hospital_login_view(request):
+    print("Method :",request.method)
+    if request.method == "POST":  # Handle only POST requests
+        try:
+            data = json.loads(request.body)
+            email = data.get('email')
+            password = data.get('password')
 
-    def get(self, request):
-        print("User:", request.user)  # Log the user
-        print("Is authenticated:", request.user.is_authenticated)  # Log authentication status
+            # Look up the user by email
+            user = Hospital.objects.get(email=email)
+
+            # print("Userrrrrrr",user)
+            if check_password(password, user.password):
+                print(user)
+                return JsonResponse({"message": "Login successful", "user_id": user.email}, status=200)
+            else:
+                return JsonResponse({"error": "Invalid password"}, status=400)
+
+        except UserProfile.DoesNotExist:
+            return JsonResponse({"error": "User does not exist"}, status=400)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid request body"}, status=400)
+    # print("Method :",request.method)
+    request.method="POST"
+    return JsonResponse({"error": "Method not allowed"}, status=405) 
+
+def search_user(request):
+    query = request.GET.get('query', '')
+    if query:
+        # Combine multiple query filters using Q objects
+        # filters = Q(name__icontains=query) | \
+        #           Q(price__icontains=query) | \
+        #           Q(area__icontains=query) | \
+        #           Q(state__icontains=query) | \
+        #           Q(country__icontains=query) | \
+        #           Q(description__icontains=query)
         
-        if request.user.is_authenticated:
-            # Return user profile data
-            return Response({"message": "User is authenticated", "user_id": request.user.email})
-        else:
-            return Response({"error": "User is not authenticated"}, status=403)
+        # Apply filters to the queryset
+        user = UserProfile.objects.filter(health_id=query)
         
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
+        # Serialize the data
+        results = list(user.values('name', 'password' , 'email', 'contact', 'dob', 'aadhar_no', 'gender', 'blood_group', 'address', 'city', 'state', 'pincode', 'health_id', 'start_date', 'exp_date', 'profile'))
+        
+        return JsonResponse(results, safe=False)
+    
+    return JsonResponse([], safe=False)
+
 def user_profile(request):
-    print(request.COOKIES)  # Log cookies to see what is being sent
-    user_profile = UserProfile.objects.get(user=request.user)
-    data = {
-        'email': user_profile.email,
-    }
-    return Response(data)
+    userId = request.GET.get('userId', '')
+    if userId:
+        # Combine multiple query filters using Q objects
+        # filters = Q(name__icontains=query) | \
+        #           Q(price__icontains=query) | \
+        #           Q(area__icontains=query) | \
+        #           Q(state__icontains=query) | \
+        #           Q(country__icontains=query) | \
+        #           Q(description__icontains=query)
+        
+        # Apply filters to the queryset
+        user = UserProfile.objects.filter(email=userId)
+        
+        # Serialize the data
+        results = list(user.values('name', 'password' , 'email', 'contact', 'dob', 'aadhar_no', 'gender', 'blood_group', 'address', 'city', 'state', 'pincode', 'health_id', 'start_date', 'exp_date', 'profile'))
+        
+        return JsonResponse(results, safe=False)
+    
+    return JsonResponse([], safe=False)
+
+
+
+@csrf_exempt
+def submit_patient_history(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)  # Parse the JSON body
+
+            # Extracting values from the incoming JSON data
+            patient_id = data.get('patient_id')
+            doctor_name = data.get('doctor_name')
+            symptoms = data.get('symptoms')
+            diagnosis = data.get('diagnosis')
+            tests_ordered = data.get('tests_ordered', '')  # Default to empty string if not provided
+            test_results = data.get('test_results', '')
+            doctor_notes = data.get('doctor_notes', '')
+
+            # Ensure patient_id is present
+            if not patient_id:
+                return JsonResponse({'error': 'Patient ID is required.'}, status=400)
+
+            # Create and save the new PatientVisit instance
+            new_visit = PatientVisit(
+                patient_id=patient_id,
+                doctor_name=doctor_name,
+                symptoms=symptoms,
+                diagnosis=diagnosis,
+                tests_ordered=tests_ordered,
+                test_results=test_results,
+                doctor_notes=doctor_notes
+            )
+            new_visit.save()
+
+            return JsonResponse({'message': 'Patient visit recorded successfully.'})
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+    return JsonResponse({'error': 'Invalid request method.'}, status=405)

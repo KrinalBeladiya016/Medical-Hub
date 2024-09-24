@@ -9,14 +9,18 @@ const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const userId = queryParams.get('userId');
+  const query = queryParams.get('query');
   const navigate = useNavigate();
-  
+  const handleSearch = () => {
+    if (searchQuery) {
+      navigate(`/search_user?query=${encodeURIComponent(searchQuery)}`);
+    }
+  };
 
 useEffect(()=> {
     const fetchResults = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/user_profile/?userId=${encodeURIComponent(userId)}`);
+        const response = await axios.get(`http://localhost:8000/api/search_user/?query=${encodeURIComponent(query)}`);
         setResults(response.data);
       } catch (error) {
         console.error('Error fetching search results:', error);
@@ -26,13 +30,28 @@ useEffect(()=> {
     };
 
     fetchResults();
-  }, [userId]);
+  }, [query]);
 
 
   return (
     <div className="find-cruise-container">
-        
-      <h1>Search Results for "{userId}"</h1>
+        <div>
+
+        <input
+            type="text"
+            placeholder="Search"
+            className="search-input"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          
+          <button className="search-button" onClick={handleSearch}>
+            Search
+          </button>
+
+        </div>
+
+      <h1>Search Results for "{query}"</h1>
       {loading ? (
         <p>Loading...</p>
       ) : results.length ? (

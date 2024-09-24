@@ -1,19 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom'; // UseNavigate from React Router v6
-import { useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
 
-const Login = () => {
-  const [userId, setUserId] = useState(""); // State for user ID (email)
+const Hospital_login = () => {
+  const [email, setEmail] = useState(""); // State for user ID (email)
   const [password, setPassword] = useState(""); // State for password
   const [error, setError] = useState(""); // State for error messages
   const [csrfToken, setCsrfToken] = useState(""); // State for CSRF token
   const [loading, setLoading] = useState(false); // Loading state
   const navigate = useNavigate(); // Hook for redirection
-  const location = useLocation(); // Access location state
-  const email='p@gmail.com'
-  // const email = location.state?.email; // Retrieve the email from location state
 
-  
   // Fetch CSRF token from the backend
   useEffect(() => {
     const fetchCsrfToken = async () => {
@@ -32,61 +27,62 @@ const Login = () => {
     };
     fetchCsrfToken();
   }, []);
+  
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent default form submission
-    const loginData = { userId, password };
-
+    setLoading(true); // Set loading state to true
+    const loginData = { email, password };
+    
     try {
-        const response = await fetch('http://127.0.0.1:8000/api/login/', {
-            method: 'POST', // Ensure this is POST
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken, // Include CSRF token if needed
-            },
-            body: JSON.stringify(loginData),
-            credentials: 'include',
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            setError(errorData.error || "Invalid email or password");
-        } else {
-            const data = await response.json();
-            console.log("Login successful:", data); // Log response data
-            console.log("user id :"+userId)
-            if (userId) {
-              navigate(`/userProfile?userId=${decodeURIComponent(userId)}`);
-            }
-            // navigate('/userProfile', { state: { email } }); // Navigate to User page and pass email in state
-            console.log("Login successful:", data);
-        }
+      const response = await fetch('http://127.0.0.1:8000/api/hospital_login/', {
+        method: 'POST', // Ensure POST is used
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken, // Pass the fetched CSRF token
+        },
+        body: JSON.stringify(loginData),
+        credentials: 'include',
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        setError(errorData.error || "Invalid email or password");
+      } else {
+        const data = await response.json();
+        console.log("Login successful:", data);
+        navigate(`/search_user`); // Redirect to the userProfile page after successful login
+      }
     } catch (error) {
-        console.error("Fetch error:", error);
-        setError("Network error. Please check your connection and try again.");
+      console.error("Fetch error:", error);
+      setError("Network error. Please check your connection and try again.");
+    } finally {
+      setLoading(false); // Reset loading state
     }
-};
-
+  };
 
   return (
     <div>
+      {/* Header bar */}
+      <div className='h-10 bg-teal-600'></div>
+    
       {/* Login Form Section */}
       <section className="py-16 bg-teal-50">
         <div className="container mx-auto px-6">
           <h2 className="text-3xl md:text-4xl font-bold mb-8 text-teal-600 text-center">Login</h2>
-          <div className="max-w-lg mx-auto bg-white p-8 rounded-lg shadow-lg border border-gray-200">
-            <form onSubmit={handleSubmit}> {/* Form submission handler */}
+          <div className="max-w-lg mx-auto bg-white p-8 rounded-lg shadow-lg border border-gray-200 ">
+            <form onSubmit={handleSubmit}>
               <div className="mb-4">
                 <label htmlFor="email" className="block text-gray-700 text-sm font-semibold mb-2">Email Address</label>
                 <input
                   name="email"
                   placeholder="Email"
-                  value={userId}
-                  onChange={(e) => setUserId(e.target.value)}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                   type="email"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-teal-600 transition duration-300 ease-in-out hover:border-teal-500"
                 />
               </div>
               <div className="mb-4">
@@ -98,17 +94,16 @@ const Login = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   type="password"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-teal-600 transition duration-300 ease-in-out hover:border-teal-500"
                 />
               </div>
               {error && <p className="text-red-500 mb-4">{error}</p>}
               <button
                 type="submit"
-                className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl"
+                className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl flex items-center gap-2 transition duration-300"
               >
-                {loading ? 'Loading...' : 'Login'}
+                {loading ? 'Loading...' : 'Login'} {/* Show loading text */}
               </button>
-              <a href="/Hospital_login">Hospital Login</a>
             </form>
           </div>
         </div>
@@ -117,4 +112,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Hospital_login;

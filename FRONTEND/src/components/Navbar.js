@@ -2,7 +2,7 @@ import React from 'react';
 
 function Navbar() {
   return (
-    <nav className="bg-gray-100 shadow-md w-full px-8 md:px-16">
+    <nav className="bg-gray-100 shadow-md w-full sticky top-0 px-8 md:px-16 z-50">
       <div className="md:h-16 h-28 mx-auto md:px-4 container flex items-center justify-between flex-wrap md:flex-nowrap">
         {/* Logo */}
         <div className="text-teal-600 md:order-1">

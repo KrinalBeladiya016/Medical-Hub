@@ -6,7 +6,6 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 class UserProfile(models.Model):
-    # user = models.OneToOneField(User, on_delete=models.CASCADE)  # This is where on_delete is applied
     health_id = models.CharField(max_length=12, unique=True, editable=False, primary_key=True)
     name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
@@ -43,33 +42,6 @@ class UserProfile(models.Model):
             raise ValidationError(errors)
 
 
-    # def save(self, *args, **kwargs):
-    #     self.clean()  # Call clean method to validate data
-
-
-    #     if not self.health_id:
-    #         dob_str = self.dob.strftime('%Y%m%d')  # Format DOB as YYYYMMDD
-    #         base_id = f"{self.name[:2].upper()}{dob_str[-4:]}{self.aadhar_no[-2:]}"  # Generate base ID
-            
-    #         # Ensure the ID is 12 characters long by appending a unique number
-    #         # Find the maximum sequential number used so far
-    #         existing_ids = UserProfile.objects.filter(health_id__startswith=base_id).order_by('-health_id')
-    #         if existing_ids.exists():
-    #             last_id = existing_ids.first().health_id
-    #             sequential_number = int(last_id[-4:]) + 1  # Increment last 4 digits
-    #         else:
-    #             sequential_number = 1  # Start with 0001 if no ID exists
-
-    #         # Ensure sequential number is 4 digits long
-    #         sequential_str = f"{sequential_number:04d}"
-
-    #         # Combine base ID with sequential number
-    #         self.health_id = f"{base_id}{sequential_str}"
-
-    #     if not self.exp_date:
-    #         self.exp_date = self.start_date + timedelta(days=3*365)
-        
-    #     super(UserProfile, self).save(*args, **kwargs)
     def save(self, *args, **kwargs):
         self.clean()  # Call clean method to validate data
 
@@ -107,7 +79,7 @@ class UserProfile(models.Model):
                 raise ValidationError({'aadhar_no': 'Aadhar number already exists.'})
 
     def __str__(self):
-        return self.name
+        return self.email
     
 
 class ContactMessage(models.Model):
@@ -117,3 +89,51 @@ class ContactMessage(models.Model):
 
     def __str__(self):
         return f"Message from {self.name} ({self.email})"
+    
+
+class Hospital(models.Model):
+    name = models.CharField(max_length=255)
+    email = models.EmailField(unique=True)
+    address = models.TextField()
+    contact = models.CharField(max_length=10)
+    password = models.CharField(max_length=8)
+    
+    def save(self, *args, **kwargs):
+
+        
+        if not self.pk or not self.__class__.objects.filter(pk=self.pk).exists() or self.__class__.objects.get(pk=self.pk).password != self.password:
+            self.password = make_password(self.password)
+
+        try:
+            super(Hospital, self).save(*args, **kwargs)
+
+        except IntegrityError as e:
+            # Check which unique field caused the IntegrityError
+            if 'email' in str(e):
+                raise ValidationError({'email': 'User ID already exists.'})
+            
+    def __str__(self):
+        return self.name
+
+
+class PatientVisit(models.Model):
+    # Patient Information
+    patient_id = models.CharField(max_length=12)  # Assuming patient ID is an alphanumeric string
+    
+    # Visit Details
+    visit_date = models.DateField(auto_now_add=True)  # Automatically adds the current date
+    doctor_name = models.CharField(max_length=100)
+    
+    # Health Information
+    symptoms = models.TextField()  # Detailed input for symptoms
+    diagnosis = models.TextField()  # Detailed diagnosis descriptions
+    
+    # Medical Tests and Results
+    tests_ordered = models.TextField(blank=True, null=True)  # Optional field for ordered tests
+    test_results = models.TextField(blank=True, null=True)  # Optional field for test results
+    
+    # Notes and Recommendations
+    doctor_notes = models.TextField(blank=True, null=True)  # Optional field for additional notes
+    
+    def __str__(self):
+        return f"Patient ID: {self.patient_id}, Visit Date: {self.visit_date}"
