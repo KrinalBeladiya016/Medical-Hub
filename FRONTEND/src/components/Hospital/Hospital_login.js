@@ -52,7 +52,7 @@ const Hospital_login = () => {
       } else {
         const data = await response.json();
         console.log("Login successful:", data);
-        navigate(`/search_user`); // Redirect to the userProfile page after successful login
+        navigate(`/dashboard`); // Redirect to the userProfile page after successful login
       }
     } catch (error) {
       console.error("Fetch error:", error);
@@ -100,10 +100,16 @@ const Hospital_login = () => {
               {error && <p className="text-red-500 mb-4">{error}</p>}
               <button
                 type="submit"
-                className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl flex items-center gap-2 transition duration-300"
+                className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl w-full"
               >
-                {loading ? 'Loading...' : 'Login'} {/* Show loading text */}
+                {loading ? 'Loading...' : 'Login'}
               </button>
+              <div className="mt-4 text-center">
+                <p className="text-gray-600">Or</p>
+                <a href="/login" className="text-teal-600 hover:text-teal-800 underline transition duration-300 ease-in-out mt-2 block">
+                  User Login
+                </a>
+              </div>
             </form>
           </div>
         </div>

@@ -23,10 +23,10 @@ const Dashboard = () => {
             <div className="absolute inset-0 bg-teal-600 opacity-25 rounded-lg"></div>
             <div className="relative z-10">
               <h2 className="text-teal-600 text-xl font-semibold mb-3">Hospital Information</h2>
-              <p className="text-gray-700"><strong>Name:</strong> ABC Hospital</p>
-              <p className="text-gray-700"><strong>Address:</strong> 123 Health St, City, Country</p>
+              <p className="text-gray-700"><strong>Name:</strong> Apollo Hospital</p>
+              <p className="text-gray-700"><strong>Address:</strong> 123 Health St, Ahemdabad</p>
               <p className="text-gray-700"><strong>Contact:</strong> +91 9876543210</p>
-              <p className="text-gray-700"><strong>Email:</strong> hospital@abc.com</p>
+              <p className="text-gray-700"><strong>Email:</strong> hospital@apollo.com</p>
             </div>
           </div>
 
@@ -57,17 +57,17 @@ const Dashboard = () => {
           </div>
 
           {/* Recent Activities */}
-          <div className="col-span-1 md:col-span-2 bg-white p-6 rounded-lg shadow-xl transition-transform transform hover:scale-105 duration-300 hover:shadow-2xl">
+          <div className="col-span-1 md:col-span-3 bg-white p-6 rounded-lg shadow-xl transition-transform transform hover:scale-105 duration-300 hover:shadow-2xl">
             <h2 className="text-teal-600 text-xl font-semibold mb-3">Recent Activities</h2>
             <ul className="text-gray-700">
               <li className="mb-3 hover:text-teal-600 transition duration-300">
-                <span className="font-semibold">Dr. Smith</span> performed surgery on patient ID 12345.
+                <span className="font-semibold">Dr. Keyur</span> performed surgery on patient ID JR0201360001.
               </li>
               <li className="mb-3 hover:text-teal-600 transition duration-300">
-                <span className="font-semibold">Patient ID 67890</span> was admitted for observation.
+                <span className="font-semibold">Patient ID KR0201980001</span> was admitted for observation.
               </li>
               <li className="mb-3 hover:text-teal-600 transition duration-300">
-                <span className="font-semibold">Dr. Johnson</span> conducted a health checkup for patient ID 54321.
+                <span className="font-semibold">Dr. Ishika</span> conducted a health checkup for patient ID FR0201360001.
               </li>
             </ul>
           </div>
@@ -77,7 +77,7 @@ const Dashboard = () => {
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Pie Chart Section */}
           <div className="bg-white p-6 rounded-lg shadow-xl flex justify-center">
-            <PieChart data={data} style={{ height: '200px', width: '200px' }} />
+            <PieChart data={data} style={{ height: '300px', width: '300px' }} radius={50} /> {/* Increased radius */}
           </div>
 
           {/* Description Section */}
@@ -88,7 +88,7 @@ const Dashboard = () => {
               The categories include Children, Adults, and Seniors, providing a clear insight 
               into the age group most frequently treated.
             </p>
-            <a href="#learn-more" className="text-gold-600 hover:text-teal-600 transition-colors duration-300 font-medium">
+            <a href="#" className="disabled text-gold-600 hover:text-teal-600 transition-colors duration-300 font-medium">
               Learn More &rarr;
             </a>
           </div>

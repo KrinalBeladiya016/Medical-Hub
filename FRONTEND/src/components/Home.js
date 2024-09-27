@@ -1,5 +1,9 @@
 import React from 'react';
 import { Carousel } from 'react-responsive-carousel';
+import cc1 from '../images/cc.jpg'
+import cc2 from '../images/cc2.jpg'
+import cc3 from '../images/cc3.jpg'
+import '../styles/animation.css'; // Import custom animations
 import 'react-responsive-carousel/lib/styles/carousel.min.css'; // Import carousel styles
 
 function Home() {
@@ -14,12 +18,12 @@ function Home() {
           infiniteLoop
           autoPlay
           interval={5000}
-          className="h-[71vh] md:h-[82vh]" // Increased height by 15px
+          className="h-[80vh] md:h-[90vh]" // Increased height by 15px
         >
           <div className="relative h-full">
             <img
               className="object-cover w-full h-full"
-              src="https://via.placeholder.com/1920x800?text=Image+1"
+              src={cc2}
               alt="First slide"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-40"></div>
@@ -32,20 +36,21 @@ function Home() {
           <div className="relative h-full">
             <img
               className="object-cover w-full h-full"
-              src="https://via.placeholder.com/1920x800?text=Image+2"
+              src={cc1}
               alt="Second slide"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-40"></div>
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white p-4 md:p-8">
-              <h2 className="text-4xl md:text-5xl font-bold mb-4">Secure and Reliable</h2>
-              <p className="text-lg md:text-xl mb-4">Your data is encrypted and protected with the highest standards.</p>
+              <h2 className="text-4xl md:text-5xl font-bold mb-4 shadow-md">Secure and Reliable</h2>
+<p className="text-lg md:text-xl mb-4 shadow-sm">Your data is encrypted and protected with the highest standards.</p>
+
               <a href="/getid" className="px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-lg shadow-lg transition duration-300">Get Your Health ID</a>
             </div>
           </div>
           <div className="relative h-full">
             <img
               className="object-cover w-full h-full"
-              src="https://via.placeholder.com/1920x800?text=Image+3"
+              src={cc3}
               alt="Third slide"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-40"></div>

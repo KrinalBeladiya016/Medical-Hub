@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import c from '../images/c.jpg';
 
 function Contact() {
   const [formData, setFormData] = useState({
@@ -14,12 +15,11 @@ function Contact() {
   };
 
   const validateEmail = (email) => {
-    // Basic regex for email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
-  const handleSubmit =async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -27,46 +27,37 @@ function Contact() {
       setError('Please enter a valid email address.');
       return;
     }
+
     const combinedData = new FormData();
     for (const key in formData) {
       combinedData.append(key, formData[key]);
     }
-    for (const pair of combinedData.entries()) {
-      console.log(`${pair[0]}: ${pair[1] instanceof File ? pair[1].name : pair[1]}`);
-    }
-    console.log("Sending data:", combinedData);  // Log the data to check if it's correct
+
+    console.log("Sending data:", combinedData);
 
     try {
       const response = await fetch('http://127.0.0.1:8000/api/contact/', {
         method: 'POST',
-        // headers: {
-        //   'Content-Type': 'application/json',
-        //   'X-CSRFToken': csrfToken,  // Add the CSRF token here
-        // },
         body: combinedData,
       });
       const data = await response.json();
       if (response.ok) {
-        alert("Doneeeeeeeeeee");  // Profile submitted successfully
+        alert("Message sent successfully!");
       } else {
         const errorMessage = typeof data.error === 'string' ? data.error : JSON.stringify(data.error);
-        alert(`Error: ${errorMessage}`);   // Display the error message returned from the server
+        alert(`Error: ${errorMessage}`);
       }
-
     } catch (error) {
       console.error('Error:', error);
       alert("An error occurred. Please try again.");
     }
-    // Handle form submission logic here
-    // For example, send formData to your server
-    console.log('Form submitted', formData);
   };
 
   return (
     <div className="font-sans text-gray-800">
       {/* Hero Section */}
       <section className="relative h-96 bg-teal-600 text-white">
-        <img src="https://via.placeholder.com/1920x600" alt="Hero" className="absolute inset-0 w-full h-full object-cover opacity-60" />
+        <img src={c} alt="Hero" className="absolute inset-0 w-full h-full object-cover opacity-60" />
         <div className="relative flex items-center justify-center h-full bg-teal-600 bg-opacity-70">
           <div className="text-center px-6">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">Contact Us</h1>
@@ -139,19 +130,19 @@ function Contact() {
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-teal-600" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M2 10a8 8 0 1116 0A8 8 0 012 10zm9.293-2.293a1 1 0 00-1.414 0L7 10.586 5.707 9.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l3-3a1 1 0 000-1.414z" clipRule="evenodd" />
               </svg>
-              <p className="text-gray-700">info@medicalhub.com</p>
+              <p className="text-gray-700 hover:text-teal-600 transition duration-300">info@medicalhub.com</p>
             </div>
             <div className="flex items-center space-x-2">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-teal-600" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M2 10a8 8 0 1116 0A8 8 0 012 10zm9.293-2.293a1 1 0 00-1.414 0L7 10.586 5.707 9.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l3-3a1 1 0 000-1.414z" clipRule="evenodd" />
               </svg>
-              <p className="text-gray-700">+1 (555) 123-4567</p>
+              <p className="text-gray-700 hover:text-teal-600 transition duration-300">+1 (555) 123-4567</p>
             </div>
             <div className="flex items-center space-x-2">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-teal-600" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M2 10a8 8 0 1116 0A8 8 0 012 10zm9.293-2.293a1 1 0 00-1.414 0L7 10.586 5.707 9.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l3-3a1 1 0 000-1.414z" clipRule="evenodd" />
               </svg>
-              <p className="text-gray-700">123 Health St, Suite 100, Health City</p>
+              <p className="text-gray-700 hover:text-teal-600 transition duration-300">123 Health St, Suite 100, Health City</p>
             </div>
           </div>
         </div>

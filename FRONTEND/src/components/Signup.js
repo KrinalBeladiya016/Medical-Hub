@@ -38,7 +38,7 @@ function Signup({ onSignupComplete }) {
   return (
     <div>
       {/* Header bar */}
-      <div className='h-10 bg-teal-600'></div>
+      {/* <div className='h-10 bg-teal-600'></div> */}
 
       {/* Signup Form Section */}
       <section className="py-16 bg-teal-50">

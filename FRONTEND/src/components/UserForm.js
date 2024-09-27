@@ -78,9 +78,7 @@ function UserForm({ userData }) {
               <h6 className="text-white text-xl font-bold">
                 My account
               </h6>
-              <button className="bg-gold text-white active:bg-gold-dark font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 ease-linear transition-all duration-150" type="button">
-                Settings
-              </button>
+              
             </div>
           </div>
           <div className="flex-auto px-4 lg:px-10 py-10 pt-0">
@@ -107,7 +105,7 @@ function UserForm({ userData }) {
                 </div>
                 <div className="w-full lg:w-6/12 px-4">
                   <div className="relative w-full mb-3">
-                    <label className="block uppercase text-gray-600 text-xs font-bold mb-2" htmlFor="name">
+                    <label className="block uppercase text-gray-600 text-xs font-bold mb-2 " htmlFor="name">
                       Username
                     </label>
                     <input
@@ -117,7 +115,7 @@ function UserForm({ userData }) {
                       onChange={handleChange}
                       required
                       type="text" 
-                      className="border-0 px-3 py-3 placeholder-gray-300 text-gray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150 hover:border-teal-500"
+                      className=" border-0 px-3 py-3 placeholder-gray-300 text-gray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150 hover:border-teal-500"
                     />
                   </div>
                 </div>

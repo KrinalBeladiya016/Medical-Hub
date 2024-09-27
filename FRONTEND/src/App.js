@@ -40,9 +40,9 @@ function App() {
   
   // Conditionally render navbar based on route
   const renderNavbar = () => {
-    if (location.pathname === '/dashboard' || location.pathname === '/search_user') {
+    if (location.pathname === '/dashboard' || location.pathname === '/search_user' || location.pathname === '/patient_history') {
       return <Hospital_Navbar />;
-    } else if (location.pathname === '/userProfile' || location.pathname === '/patient_history'){
+    } else if (location.pathname === '/userProfile'){
       return <User_Navbar />;
     } else {
       return <Navbar />;

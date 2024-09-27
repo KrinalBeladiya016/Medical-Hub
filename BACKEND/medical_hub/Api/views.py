@@ -203,18 +203,8 @@ def hospital_login_view(request):
 def search_user(request):
     query = request.GET.get('query', '')
     if query:
-        # Combine multiple query filters using Q objects
-        # filters = Q(name__icontains=query) | \
-        #           Q(price__icontains=query) | \
-        #           Q(area__icontains=query) | \
-        #           Q(state__icontains=query) | \
-        #           Q(country__icontains=query) | \
-        #           Q(description__icontains=query)
-        
-        # Apply filters to the queryset
         user = UserProfile.objects.filter(health_id=query)
         
-        # Serialize the data
         results = list(user.values('name', 'password' , 'email', 'contact', 'dob', 'aadhar_no', 'gender', 'blood_group', 'address', 'city', 'state', 'pincode', 'health_id', 'start_date', 'exp_date', 'profile'))
         
         return JsonResponse(results, safe=False)
@@ -224,18 +214,8 @@ def search_user(request):
 def user_profile(request):
     userId = request.GET.get('userId', '')
     if userId:
-        # Combine multiple query filters using Q objects
-        # filters = Q(name__icontains=query) | \
-        #           Q(price__icontains=query) | \
-        #           Q(area__icontains=query) | \
-        #           Q(state__icontains=query) | \
-        #           Q(country__icontains=query) | \
-        #           Q(description__icontains=query)
-        
-        # Apply filters to the queryset
         user = UserProfile.objects.filter(email=userId)
         
-        # Serialize the data
         results = list(user.values('name', 'password' , 'email', 'contact', 'dob', 'aadhar_no', 'gender', 'blood_group', 'address', 'city', 'state', 'pincode', 'health_id', 'start_date', 'exp_date', 'profile'))
         
         return JsonResponse(results, safe=False)
